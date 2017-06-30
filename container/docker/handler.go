@@ -262,6 +262,14 @@ func newDockerContainerHandler(
 		ipAddress = c.NetworkSettings.IPAddress
 	}
 
+	// Check for IP addresses in named networks
+	if ipAddress == "" {
+		for _, value := range ctnr.NetworkSettings.Networks {
+			ipAddress = value.IPAddress
+			if ipAddress != "" { break }
+		}
+	}
+
 	handler.ipAddress = ipAddress
 
 	if !ignoreMetrics.Has(container.DiskUsageMetrics) {
