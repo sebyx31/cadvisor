@@ -14,8 +14,11 @@ RUN apk --no-cache add ca-certificates wget device-mapper && \
     echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf && \
     rm -rf /var/cache/apk/*
 
+RUN apk --no-cache add go git && \
+    GOPATH=/go go get github.com/derekparker/delve/cmd/dlv
+
 # Grab cadvisor from the staging directory.
 ADD cadvisor /usr/bin/cadvisor
 
 EXPOSE 8080
-ENTRYPOINT ["/usr/bin/cadvisor", "-logtostderr"]
+ENTRYPOINT ["/go/bin/dlv", "--listen=:2345", "--headless=true", "--api-version=2", "exec", "/usr/bin/cadvisor", "--", "-logtostderr"]
